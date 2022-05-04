@@ -1,8 +1,12 @@
 package com.company;
-import java.util.Arrays;
-import java.util.FormatterClosedException;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+
+import java.io.Writer;
+import java.io.FileOutputStream;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
 
 public class Main {
 
@@ -80,23 +84,21 @@ public class Main {
 
 
     public static void main(String[] args) {
-        Scanner input = new Scanner(System.in);
-        System.out.println("Enter n and n words:");
+        String file_in = "input.txt";
         int n,m;
         String[]  nArray, mArray;
         try {
-            n = input.nextInt();
-            input.nextLine();   // nextInt() не переводит Scanner на новую строку
+            BufferedReader reader = new BufferedReader(new FileReader(file_in));
+            String firstLine = reader.readLine();
+            n = Integer.parseInt(firstLine);
             nArray = new String[n];
             for(int i=0; i<n; i++){
-                nArray[i]=input.nextLine();
+                nArray[i]=reader.readLine();
             }
-            System.out.println("Enter m and m words:");
-            m = input.nextInt();
-            input.nextLine();   // nextInt() не переводит Scanner на новую строку
+            m = Integer.parseInt(reader.readLine());
             mArray = new String[m];
             for(int i=0; i<m; i++){
-                mArray[i]=input.nextLine();
+                mArray[i]=reader.readLine();
             }
 
             Double [][] matr_sim=new Double[n][m];
@@ -112,27 +114,17 @@ public class Main {
                     if(matr_sim[i][j]>maximum[i]) maximum[i]=matr_sim[i][j];
                 }
             }
-            Integer [] indexes;
-
-            if (n <= m)
-                indexes=make_indexes(n, maximum,matr_sim, m);
-            else
-                indexes=make_indexes(m,maximum,matr_sim,m);
+            Integer [] indexes=make_indexes(Math.min(n, m), maximum,matr_sim, m);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream("output.txt"), "utf-8"));
 
             for (int i=0; i<n; i++){
-                if(indexes[i]==-1)
-                    System.out.println(nArray[i] +":?");
-                else
-                    System.out.println(nArray[i] +":"+mArray[indexes[i]]);
+                writer.write(nArray[i] +":"+(indexes[i]==-1 ? "?" : mArray[indexes[i]])+"\n");
             }
+            writer.close();
 
-        }
-        catch (FormatterClosedException exp) {
+        } catch (IOException exp) {
             System.out.println(exp);
         }
-        catch (NoSuchElementException exp) {
-            System.err.println("Invalid input!");
-        }
-
     }
 }
